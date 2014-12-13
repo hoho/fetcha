@@ -1,0 +1,25 @@
+{
+  "name": "fetcha",
+  "version": "0.0.0",
+  "description": "AJAX data fetch helper",
+  "main": "fetcha.js",
+  "scripts": {
+    "test": "gulp"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/hoho/fetcha.git"
+  },
+  "keywords": [
+    "AJAX",
+    "fetch",
+    "data",
+    "loading"
+  ],
+  "author": "Marat Abdullin <dakota@brokenpipe.ru>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/hoho/fetcha/issues"
+  },
+  "homepage": "https://github.com/hoho/fetcha"
+}
