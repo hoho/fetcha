@@ -1,0 +1,20 @@
+{
+    "name": "fetcha",
+    "version": "0.0.0",
+    "homepage": "https://github.com/hoho/fetcha",
+    "authors": ["Marat Abdullin <dakota@brokenpipe.ru>"],
+    "description": "AJAX data fetch helper",
+    "main": "fetcha.js",
+    "keywords": ["AJAX", "fetch", "data", "loading"],
+    "license": "MIT",
+    "ignore": [
+        "**/.*",
+        "node_modules",
+        "test",
+        "tmp",
+        "*.md",
+        "package.json",
+        "bower.json",
+        "gulpfile.js"
+    ]
+}
