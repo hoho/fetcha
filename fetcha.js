@@ -3,7 +3,7 @@
  * (c) 2014 Marat Abdullin, MIT license
  */
 
-var Fetcha = (function(proto, undefined) {
+window.Fetcha = (function(undefined) {
     'use strict';
 
     function Fetcha(settings, body) {
@@ -67,6 +67,7 @@ var Fetcha = (function(proto, undefined) {
         }
     }
 
+    var proto = Fetcha.prototype;
 
     proto.then = function(ok, error) {
         var self = this;
@@ -108,4 +109,4 @@ var Fetcha = (function(proto, undefined) {
             }
         }
     }
-})(Fetcha.prototype);
+})();
