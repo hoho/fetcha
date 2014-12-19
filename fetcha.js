@@ -24,6 +24,10 @@ window.Fetcha = (function(undefined) {
             req,
             response;
 
+        if (!(self instanceof Fetcha)) {
+            return new Fetcha(settings, body);
+        }
+
         self.ok = [];
         self.err = [];
 
@@ -36,11 +40,11 @@ window.Fetcha = (function(undefined) {
                 true
             );
 
-            emitEvent([req, false]);
+            if (emitEvent) { emitEvent.call(self, req, false); }
 
             req.onreadystatechange = function() {
                 if (req.readyState === 4) { // Completed.
-                    emitEvent([req, true]);
+                    if (emitEvent) { emitEvent.call(self, req, true); }
                     self.d = self.e = true;
                     if (((req.status / 100) | 0) === 2) { // A clever Math.ceil(req.status / 100) === 2
                         try {
