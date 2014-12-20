@@ -6,6 +6,8 @@ var eslint = require('gulp-eslint');
 var rename = require('gulp-rename');
 var uglify = require('gulp-uglify');
 
+var path = require('path');
+
 
 gulp.task('eslint', function() {
     return gulp.src(['gulpfile.js', 'fetcha.js'])
@@ -47,7 +49,12 @@ gulp.task('assert-version', function(err) {
 });
 
 
-gulp.task('test', function() {
+gulp.task('test', function(done) {
+    var karma = require('karma').server;
+    karma.start({
+        configFile: path.join(__dirname, 'karma.conf.js'),
+        singleRun: true
+    }, function() { done(); });
 });
 
 
