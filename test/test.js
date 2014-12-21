@@ -43,6 +43,20 @@ describe('Simple test', function() {
         runs(function() {
             expect(oks).toEqual([{url: '/api/test2', method: 'GET'}]);
             expect(errors).toEqual([]);
+
+            oks = [];
+
+            var f2 = new Fetcha({uri: '/api/test3', method: 'POST'}, 'ololo');
+            storeResult(f2);
+
+            waitInit();
+        });
+
+        wait();
+
+        runs(function() {
+            expect(oks).toEqual([{url: '/api/test3', method: 'POST', body: 'ololo'}]);
+            expect(errors).toEqual([]);
         });
     });
 

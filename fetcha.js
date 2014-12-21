@@ -61,7 +61,7 @@ window.Fetcha = (function(undefined) {
             };
 
             if (body) {
-                body = body(req);
+                body = typeof body === 'function' ? body.call(self, req) : body;
             }
 
             req.send(body);
