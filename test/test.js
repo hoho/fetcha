@@ -57,6 +57,44 @@ describe('Simple test', function() {
         runs(function() {
             expect(oks).toEqual([{url: '/api/test3', method: 'POST', body: 'ololo'}]);
             expect(errors).toEqual([]);
+
+            oks = [];
+
+            var f2 = new Fetcha(
+                {
+                    uri: '/api/test4',
+                    method: 'POST',
+                    parse: function(response, xhr) {
+                        oks.push('parse: ' + response + ' ' + xhr.method);
+                        return JSON.parse(response);
+                    },
+                    transform: function(response, xhr) {
+                        oks.push('transform: ' + JSON.stringify(response) + ' ' + xhr.method);
+                        response.ololo = 'ululu';
+                        return response;
+                    },
+                    callback: function(xhr, completed) {
+                        oks.push((this instanceof Fetcha) + ' alala ' + xhr.uri + ' ' + completed);
+                    }
+                },
+                function(xhr) { return (this instanceof Fetcha) + ' alala ' + xhr.method; }
+            );
+            storeResult(f2);
+
+            waitInit();
+        });
+
+        wait();
+
+        runs(function() {
+            expect(oks).toEqual([
+                'true alala /api/test4 false',
+                'true alala /api/test4 true',
+                'parse: {"url":"/api/test4","method":"POST","body":"true alala POST"} POST',
+                'transform: {"url":"/api/test4","method":"POST","body":"true alala POST"} POST',
+                {url: '/api/test4', method: 'POST', body: 'true alala POST', ololo: 'ululu'}
+            ]);
+            expect(errors).toEqual([]);
         });
     });
 
