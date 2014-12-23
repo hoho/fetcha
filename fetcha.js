@@ -6,7 +6,7 @@
 window.Fetcha = (function(undefined) {
     'use strict';
 
-    function Fetcha(settings, body) {
+    function Fetcha(settings, overrideCallbackPayload) {
         // self.ok — Success callbacks.
         // self.err — Error callbacks.
         // self.d — Done.
@@ -14,28 +14,33 @@ window.Fetcha = (function(undefined) {
         // self.r = XMLHTTRequest.
         // self.j = Parsed response JSON.
 
+        if (!(this instanceof Fetcha)) {
+            return new Fetcha(settings, overrideCallbackPayload);
+        }
+
         var self = this,
             uri = settings.uri,
-            method = settings.method || 'GET',
+            method = (settings.method || 'GET').toUpperCase(),
             parse = settings.parse || function(response) { if (this.status !== 204) { return JSON.parse(response); } },
+            body = settings.body,
             transform = settings.transform,
             override = settings.override,
             emitEvent = settings.callback,
             req,
             response;
 
-        if (!(self instanceof Fetcha)) {
-            return new Fetcha(settings, body);
-        }
-
         self.ok = [];
         self.err = [];
 
-        if (((self.j = override && override.call(self))) === undefined) {
+        if (body) {
+            body = typeof body === 'function' ? body.call(self, overrideCallbackPayload, uri, method) : body;
+        }
+
+        if (((self.j = override && override.call(self, overrideCallbackPayload, uri, method, body))) === undefined) {
             self.r = req = new XMLHttpRequest();
 
             req.open(
-                (req.method = method.toUpperCase()),
+                (req.method = method),
                 (req.uri = uri),
                 true
             );
@@ -59,10 +64,6 @@ window.Fetcha = (function(undefined) {
                     self.r = undefined;
                 }
             };
-
-            if (body) {
-                body = typeof body === 'function' ? body.call(self, req) : body;
-            }
 
             req.send(body);
         } else {

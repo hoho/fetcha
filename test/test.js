@@ -46,7 +46,7 @@ describe('Simple test', function() {
 
             oks = [];
 
-            var f2 = new Fetcha({uri: '/api/test3', method: 'POST'}, 'ololo');
+            var f2 = new Fetcha({uri: '/api/test3', method: 'POST', body: 'ololo'});
             storeResult(f2);
 
             waitInit();
@@ -64,6 +64,7 @@ describe('Simple test', function() {
                 {
                     uri: '/api/test4',
                     method: 'POST',
+                    body: function(overrideCallbackPayload, uri, method) { return (this instanceof Fetcha) + ' alala ' + uri + ' eee ' + method + ' uuu ' + JSON.stringify(overrideCallbackPayload); },
                     parse: function(response, xhr) {
                         oks.push('parse: ' + response + ' ' + xhr.method);
                         return JSON.parse(response);
@@ -75,9 +76,19 @@ describe('Simple test', function() {
                     },
                     callback: function(xhr, completed) {
                         oks.push((this instanceof Fetcha) + ' alala ' + xhr.uri + ' ' + completed);
+                    },
+                    override: function(overrideCallbackPayload, uri, method, body) {
+                        oks.push(
+                            (this instanceof Fetcha) +
+                            '|' +
+                            uri + '|' +
+                            method + '|' +
+                            JSON.stringify(overrideCallbackPayload) + '|' +
+                            body
+                        );
                     }
                 },
-                function(xhr) { return (this instanceof Fetcha) + ' alala ' + xhr.method; }
+                {a: 1, b: 2}
             );
             storeResult(f2);
 
@@ -88,11 +99,12 @@ describe('Simple test', function() {
 
         runs(function() {
             expect(oks).toEqual([
+                'true|/api/test4|POST|{"a":1,"b":2}|true alala /api/test4 eee POST uuu {"a":1,"b":2}',
                 'true alala /api/test4 false',
                 'true alala /api/test4 true',
-                'parse: {"url":"/api/test4","method":"POST","body":"true alala POST"} POST',
-                'transform: {"url":"/api/test4","method":"POST","body":"true alala POST"} POST',
-                {url: '/api/test4', method: 'POST', body: 'true alala POST', ololo: 'ululu'}
+                'parse: {"url":"/api/test4","method":"POST","body":"true alala /api/test4 eee POST uuu {\\"a\\":1,\\"b\\":2}"} POST',
+                'transform: {"url":"/api/test4","method":"POST","body":"true alala /api/test4 eee POST uuu {\\"a\\":1,\\"b\\":2}"} POST',
+                {url: '/api/test4', method: 'POST', body: 'true alala /api/test4 eee POST uuu {"a":1,"b":2}', ololo: 'ululu'}
             ]);
             expect(errors).toEqual([]);
         });
