@@ -6,6 +6,8 @@
 window.Fetcha = (function(undefined) {
     'use strict';
 
+    var cache = {};
+
     function Fetcha(settings, overrideCallbackPayload) {
         // self.ok — Success callbacks.
         // self.err — Error callbacks.
@@ -22,19 +24,40 @@ window.Fetcha = (function(undefined) {
             uri = settings.uri,
             method = (settings.method || 'GET').toUpperCase(),
             parse = settings.parse || function(response) { if (this.status !== 204) { return JSON.parse(response); } },
-            body = settings.body,
+            body,
             transform = settings.transform,
             override = settings.override,
             emitEvent = settings.callback,
+            cacheKey,
+            ttl,
+            cached,
             req,
             response;
+
+        if (method === 'GET' &&
+            ((cacheKey = ifFunction(settings.cache, null, [uri, overrideCallbackPayload]))))
+        {
+            if (cacheKey instanceof CacheSettings) {
+                ttl = cacheKey.ttl || 1000;
+                cacheKey = cacheKey.key;
+            }
+
+            cacheKey = cacheKey ? '|' + cacheKey : '_' + uri;
+
+            if ((cached = cache[cacheKey])) {
+                return cached.data;
+            } else {
+                cache[cacheKey] = {
+                    data: self,
+                    timer: setTimeout(function() { delete cached[cacheKey]; }, ttl)
+                };
+            }
+        }
 
         self.ok = [];
         self.err = [];
 
-        if (body) {
-            body = typeof body === 'function' ? body.call(self, overrideCallbackPayload, uri, method) : body;
-        }
+        body = ifFunction(settings.body, self, [overrideCallbackPayload, uri, method]);
 
         if (((self.j = override && override.call(self, overrideCallbackPayload, uri, method, body))) === undefined) {
             self.r = req = new XMLHttpRequest();
@@ -96,6 +119,19 @@ window.Fetcha = (function(undefined) {
     };
 
 
+    Fetcha.cache = CacheSettings;
+    Fetcha.clear = function clearCache() {
+        var i,
+            keys = Object.keys(cache);
+
+        for (i = keys.length; i--;) {
+            clearTimeout(cache[keys[i]].timer);
+        }
+
+        cache = {};
+    };
+
+
     return Fetcha;
 
 
@@ -113,5 +149,19 @@ window.Fetcha = (function(undefined) {
                 todo.shift()(data);
             }
         }
+    }
+
+
+    function ifFunction(val, context, args) {
+        return typeof val === 'function' ?
+            val.apply(context, args)
+            :
+            val;
+    }
+
+
+    function CacheSettings(key, ttl) {
+        this.key = key;
+        this.ttl = ttl;
     }
 })();
