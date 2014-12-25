@@ -49,7 +49,7 @@ window.Fetcha = (function(undefined) {
             } else {
                 cache[cacheKey] = {
                     data: self,
-                    timer: setTimeout(function() { delete cached[cacheKey]; }, ttl)
+                    timer: setTimeout(function() { delete cache[cacheKey]; }, ttl)
                 };
             }
         }
@@ -161,6 +161,9 @@ window.Fetcha = (function(undefined) {
 
 
     function CacheSettings(key, ttl) {
+        if (!(this instanceof CacheSettings)) {
+            return new CacheSettings(key, ttl);
+        }
         this.key = key;
         this.ttl = ttl;
     }

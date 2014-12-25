@@ -107,6 +107,71 @@ describe('Simple test', function() {
                 {url: '/api/test4', method: 'POST', body: 'true alala /api/test4 eee POST uuu {"a":1,"b":2}', ololo: 'ululu'}
             ]);
             expect(errors).toEqual([]);
+            oks = [];
+
+            var f2 = new Fetcha({
+                uri: '/api/test5',
+                cache: Fetcha.cache(undefined, 700),
+                transform: function(d) { d.rnd = Math.random(); return d; }
+            });
+            storeResult(f2);
+            f2 = new Fetcha({
+                uri: '/api/test5',
+                cache: Fetcha.cache(undefined, 700),
+                transform: function(d) { d.rnd = Math.random(); return d; }
+            });
+            storeResult(f2);
+
+            waitInit();
+        });
+
+        wait();
+
+        var cached;
+
+        runs(function() {
+            cached = oks[0];
+            expect(oks).toEqual([cached, cached]);
+            expect(errors).toEqual([]);
+            oks = [];
+
+            var f2 = new Fetcha({
+                uri: '/api/test5',
+                cache: Fetcha.cache(undefined, 700),
+                transform: function(d) { d.rnd = Math.random(); return d; }
+            });
+            storeResult(f2);
+
+            waitInit();
+        });
+
+        wait();
+
+        runs(function() {
+            expect(oks).toEqual([cached]);
+            expect(errors).toEqual([]);
+            oks = [];
+
+            var f2 = new Fetcha({
+                uri: '/api/test5',
+                cache: Fetcha.cache(undefined, 700),
+                transform: function(d) { d.rnd = Math.random(); return d; }
+            });
+            storeResult(f2);
+
+            waitInit();
+        });
+
+        wait();
+
+        runs(function() {
+            var data = oks[0] || {};
+            expect(data.rnd).not.toEqual(cached.rnd);
+            delete data.rnd;
+            delete cached.rnd;
+            expect(data).toEqual(cached);
+            expect(errors).toEqual([]);
+            oks = [];
         });
     });
 
