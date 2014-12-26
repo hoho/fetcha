@@ -79,8 +79,7 @@ describe('Simple test', function() {
                     },
                     override: function(overrideCallbackPayload, uri, method, body) {
                         oks.push(
-                            (this instanceof Fetcha) +
-                            '|' +
+                            (this instanceof Fetcha) + '|' +
                             uri + '|' +
                             method + '|' +
                             JSON.stringify(overrideCallbackPayload) + '|' +
@@ -172,6 +171,40 @@ describe('Simple test', function() {
             expect(data).toEqual(cached);
             expect(errors).toEqual([]);
             oks = [];
+
+            waitInit();
+        });
+
+        wait();
+
+        runs(function() {
+            var f2 = Fetcha({
+                uri: '/api/test6',
+                body: 'hehe',
+                override: function(overrideCallbackPayload, uri, method, body) {
+                    return {
+                        payload: overrideCallbackPayload,
+                        uri: uri,
+                        method: method,
+                        body: body
+                    };
+                }
+            }, {yaya: 'haha'});
+            storeResult(f2);
+
+            waitInit();
+        });
+
+        wait();
+
+        runs(function() {
+            expect(oks).toEqual([{
+                payload: {yaya: 'haha'},
+                uri: '/api/test6',
+                method: 'GET',
+                body: 'hehe'
+            }]);
+            expect(errors).toEqual([]);
         });
     });
 
